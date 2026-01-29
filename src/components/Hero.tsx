@@ -21,7 +21,7 @@ export default function Hero() {
     // Text/buttons move at HALF speed (150 instead of 300)
     const bgY = useTransform(scrollY, [pinOffset, pinOffset + 1000], [0, 1000]);
     const circleY = useTransform(scrollY, [pinOffset, pinOffset + 1000], [0, -150]);
-    const textY = useTransform(scrollY, [pinOffset, pinOffset + 800], [0, 500]); // Half speed
+    const textY = useTransform(scrollY, [pinOffset, pinOffset + 800], [0, 650]); // Half speed
     const textOpacity = useTransform(scrollY, [pinOffset, pinOffset + 800], [1, 0]);
 
     return (
@@ -88,40 +88,41 @@ export default function Hero() {
                 style={{ y: textY, opacity: textOpacity }}
             >
                 <div className="mb-6 hero-reveal-content">
-                    <span className="text-accent-orange/80 text-sm md:text-base font-medium tracking-[0.3em] uppercase">
+                    <span className="text-cinematic-label-orange text-sm md:text-base">
                         Motion Graphics Studio
                     </span>
                 </div>
 
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 hero-reveal-content">
-                    <span className="text-white">VISUAL</span>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-cinematic-heading tracking-tight mb-8 hero-reveal-content">
+                    <span>Complex Ideas</span>
                     <br />
-                    <span className="text-gradient">ALCHEMY</span>
+                    <span className="text-gradient">Clear Motion.</span>
                 </h1>
 
-                <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-8 md:mb-12 hero-reveal-content">
-                    Transforming ideas into cinematic experiences. We craft stunning motion graphics
-                    that captivate audiences and elevate your brand.
+                <p className="text-cinematic-body text-lg md:text-xl max-w-2xl mx-auto mb-8 md:mb-12 hero-reveal-content">
+                    I craft cinematic motion visuals and high-converting video content that help brands stand out, tell better stories, and convert viewers into customers.
                 </p>
 
                 <div className="hero-reveal-content">
-                    <Link
-                        href="#contact"
+                    <a
+                        href="http://wa.me/7248197932"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="group relative inline-flex items-center justify-center h-14 px-8 text-lg font-semibold overflow-hidden btn-gradient-border btn-slide-up"
                     >
                         <span className="btn-text text-white transition-colors duration-300">
-                            Work with me
+                            Start Your Project
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </span>
                         <span className="btn-text-hover text-white">
-                            Work with me
+                            Contact Now
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </span>
-                    </Link>
+                    </a>
                 </div>
             </motion.div>
 

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
     { name: "Home", href: "#home" },
@@ -11,19 +10,46 @@ const navLinks = [
     { name: "Contact", href: "#contact" },
 ];
 
+const WHATSAPP_LINK = "http://wa.me/7248197932";
+
 export default function Navbar() {
     const [activeSection, setActiveSection] = useState("home");
-    const [scrolled, setScrolled] = useState(false);
+    // Controls if the navbar is actually visible on screen (Logic for Spaceship reveal)
+    const [isVisible, setIsVisible] = useState(false);
+
+    // Smooth scroll handler
+    const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        e.preventDefault();
+
+        const element = document.querySelector(href);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
+
+    // Scroll to very top (spaceship reveal)
+    const scrollToTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
 
     useEffect(() => {
         const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
+            const currentScrollY = window.scrollY;
+
+            // Show navbar only after hero section (after spaceship reveal + hero)
+            // Approximately 500px to ensure user has passed the intro
+            if (currentScrollY > 500) {
+                setIsVisible(true);
+            } else {
+                setIsVisible(false);
+            }
         };
 
-        // Intersection Observer for active section
+        // Active section detection
         const observerOptions = {
             root: null,
-            rootMargin: "-40% 0px -60% 0px",
+            rootMargin: "-20% 0px -50% 0px",
             threshold: 0,
         };
 
@@ -36,8 +62,6 @@ export default function Navbar() {
         };
 
         const observer = new IntersectionObserver(observerCallback, observerOptions);
-
-        // Observe all sections
         const sections = document.querySelectorAll("section[id]");
         sections.forEach((section) => observer.observe(section));
 
@@ -50,78 +74,106 @@ export default function Navbar() {
     }, []);
 
     return (
-        <motion.nav
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4"
-        >
-            <div
-                className={`flex items-center gap-2 md:gap-8 px-4 md:px-8 py-3 rounded-full transition-all duration-500 ${scrolled
-                    ? "glass shadow-lg shadow-black/30"
-                    : "bg-white/5 backdrop-blur-sm border border-white/5"
-                    }`}
-            >
-                {/* Logo */}
-                <Link href="#home" className="text-lg md:text-xl font-bold text-gradient mr-2">
-                    RazeX
-                </Link>
-
-                {/* Nav Links */}
-                <ul className="hidden md:flex items-center gap-6">
-                    {navLinks.map((link) => (
-                        <li key={link.name}>
-                            <Link
-                                href={link.href}
-                                className={`relative text-sm font-medium transition-all duration-300 ${activeSection === link.href.slice(1)
-                                    ? "text-white"
-                                    : "text-white/50 hover:text-white/80"
-                                    }`}
-                            >
-                                {link.name}
-                                {activeSection === link.href.slice(1) && (
-                                    <motion.div
-                                        layoutId="activeIndicator"
-                                        className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-orange to-accent-gold rounded-full"
-                                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                                    />
-                                )}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* Mobile Links */}
-                <ul className="flex md:hidden items-center gap-4">
-                    {navLinks.slice(0, 3).map((link) => (
-                        <li key={link.name}>
-                            <Link
-                                href={link.href}
-                                className={`text-xs font-medium transition-all duration-300 ${activeSection === link.href.slice(1)
-                                    ? "text-white"
-                                    : "text-white/50"
-                                    }`}
-                            >
-                                {link.name}
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-
-                {/* CTA Button with slide-up animation */}
-                <Link
-                    href="#contact"
-                    className="relative h-9 px-4 md:px-6 flex items-center justify-center text-xs md:text-sm font-medium rounded-full border border-accent-orange/50 overflow-hidden group btn-glow btn-slide-up"
+        <AnimatePresence>
+            {isVisible && (
+                <motion.nav
+                    initial={{ y: -100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -100, opacity: 0 }}
+                    transition={{
+                        type: "spring",
+                        stiffness: 120,
+                        damping: 20,
+                        duration: 0.5
+                    }}
+                    className="fixed top-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
                 >
-                    <span className="btn-text text-white group-hover:text-dark-900 transition-colors duration-300">
-                        Let&apos;s Talk
-                    </span>
-                    <span className="btn-text-hover text-dark-900">
-                        Let&apos;s Talk
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-accent-orange to-accent-gold transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out -z-10" />
-                </Link>
-            </div>
-        </motion.nav>
+                    <div
+                        className="pointer-events-auto flex items-center gap-2 md:gap-8 px-4 md:px-6 py-3 rounded-full 
+                        bg-black/40 backdrop-blur-md border border-white/10 shadow-2xl shadow-black/50
+                        transition-all duration-300 hover:border-accent-orange/30 hover:shadow-accent-orange/10"
+                    >
+                        {/* Logo - scrolls to very top (spaceship reveal) */}
+                        <a
+                            href="#"
+                            onClick={scrollToTop}
+                            className="mr-2 group cursor-pointer"
+                        >
+                            <span className="text-lg md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 group-hover:from-accent-orange group-hover:to-accent-gold transition-all duration-300">
+                                RazeX
+                            </span>
+                        </a>
+
+                        {/* Nav Links with smooth scroll */}
+                        <ul className="hidden md:flex items-center gap-1">
+                            {navLinks.map((link) => (
+                                <li key={link.name}>
+                                    <a
+                                        href={link.href}
+                                        onClick={(e) => handleSmoothScroll(e, link.href)}
+                                        className={`relative px-4 py-2 text-sm font-medium transition-colors duration-300 cursor-pointer ${activeSection === link.href.slice(1)
+                                            ? "text-white"
+                                            : "text-white/60 hover:text-white"
+                                            }`}
+                                    >
+                                        {link.name}
+
+                                        {/* Active Indicator */}
+                                        {activeSection === link.href.slice(1) && (
+                                            <motion.div
+                                                layoutId="activeIndicator"
+                                                className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-accent-orange to-transparent shadow-[0_0_10px_rgba(249,115,22,0.8)]"
+                                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                            />
+                                        )}
+
+                                        {/* Hover background */}
+                                        {activeSection !== link.href.slice(1) && (
+                                            <div className="absolute inset-0 rounded-full bg-white/5 opacity-0 hover:opacity-100 transition-opacity duration-300 -z-10" />
+                                        )}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* Mobile Links with smooth scroll */}
+                        <ul className="flex md:hidden items-center gap-3 pr-2">
+                            {navLinks.slice(0, 3).map((link) => (
+                                <li key={link.name}>
+                                    <a
+                                        href={link.href}
+                                        onClick={(e) => handleSmoothScroll(e, link.href)}
+                                        className={`text-xs font-medium cursor-pointer ${activeSection === link.href.slice(1) ? "text-accent-orange" : "text-white/60"
+                                            }`}
+                                    >
+                                        {link.name}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* Divider */}
+                        <div className="w-[1px] h-6 bg-white/10 hidden md:block mx-2" />
+
+                        {/* CTA Button - WhatsApp Link */}
+                        <a
+                            href={WHATSAPP_LINK}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="relative h-9 px-6 flex items-center justify-center text-xs md:text-sm font-bold rounded-full overflow-hidden group"
+                        >
+                            <span className="absolute inset-0 rounded-full border border-accent-orange/40 bg-accent-orange/10 group-hover:bg-accent-orange/20 transition-all duration-300" />
+
+                            <span className="relative z-10 btn-text text-white group-hover:-translate-y-[150%] transition-transform duration-500 block">
+                                Let&apos;s Talk
+                            </span>
+                            <span className="absolute z-10 btn-text-hover text-accent-orange translate-y-[150%] group-hover:translate-y-0 transition-transform duration-500 block">
+                                Let&apos;s Talk
+                            </span>
+                        </a>
+                    </div>
+                </motion.nav>
+            )}
+        </AnimatePresence>
     );
 }

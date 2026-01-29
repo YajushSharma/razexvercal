@@ -3,11 +3,12 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import Image from "next/image";
 
 // Register GSAP plugins
 if (typeof window !== "undefined") {
-    gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }
 
 interface SpaceshipRevealProps {
@@ -34,8 +35,8 @@ export default function SpaceshipReveal({ children }: SpaceshipRevealProps) {
                 },
             });
 
-            // Fade out scroll indicator first
-            tl.to(scrollIndicatorRef.current, {
+            // Fade out scroll indicator and start text first
+            tl.to([scrollIndicatorRef.current, ".start-text-container"], {
                 opacity: 0,
                 y: -20,
                 duration: 0.15,
@@ -151,6 +152,30 @@ export default function SpaceshipReveal({ children }: SpaceshipRevealProps) {
                 </svg>
             </div>
 
+            {/* Centered Start Text - clickable to jump to hero */}
+            <div className="start-text-container absolute inset-0 z-[45] flex items-center justify-center pointer-events-none">
+                <a
+                    href="#home"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        gsap.to(window, {
+                            scrollTo: { y: window.innerHeight * 1.5, autoKill: false },
+                            duration: 2.5,
+                            ease: "power2.inOut"
+                        });
+                    }}
+                    // CHANGE: Increased -translate-y-6 to -translate-y-32
+                    className="pointer-events-auto group flex flex-col items-center gap-2 cursor-pointer -translate-y-32"
+                >
+                    <span className="text-white/40 text-xs tracking-[0.3em] uppercase font-light group-hover:text-white/70 transition-colors duration-300">
+                        Click to
+                    </span>
+                    <span className="text-white/60 text-sm md:text-base tracking-[0.2em] uppercase font-medium group-hover:text-accent-orange transition-colors duration-300">
+                        Begin Journey
+                    </span>
+                    <div className="w-8 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:via-accent-orange/50 transition-all duration-300" />
+                </a>
+            </div>
             {/* Spaceship Window Overlay */}
             <div
                 ref={windowRef}

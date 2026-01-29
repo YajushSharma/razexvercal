@@ -1,34 +1,131 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useRef, useEffect, useState, useMemo } from "react";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+
+// --- STAR BACKGROUND COMPONENT ---
+const StarBackground = ({ y }: { y: MotionValue<string> }) => {
+    const smallShadows = useMemo(() => generateBoxShadow(700), []);
+    const mediumShadows = useMemo(() => generateBoxShadow(200), []);
+    const bigShadows = useMemo(() => generateBoxShadow(100), []);
+
+    return (
+        // 1. STATIC WRAPPER: Holds the mask and positioning
+        // The mask stays fixed so the fade effect doesn't move with the stars
+        <div
+            className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
+            style={{
+                maskImage: `
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 15%,
+      black 85%,
+      transparent 100%
+    )
+  `,
+                WebkitMaskImage: `
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 15%,
+      black 85%,
+      transparent 100%
+    )
+  `
+            }}
+        >
+            {/* 2. MOVING LAYER: This applies the Parallax */}
+            {/* We make it taller (150%) and shift it up (-25%) to prevent gaps when it moves */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1.5 }}
+                viewport={{ once: true }}
+                style={{ y: y }}
+                className="absolute -top-[25%] -left-[10%] w-[120%] h-[150%] opacity-60"
+            >
+                <style jsx global>{`
+                    @keyframes animStar {
+                        from { transform: translateY(0px); }
+                        to { transform: translateY(-2000px); }
+                    }
+                `}</style>
+
+                {/* Small Stars */}
+                <div
+                    className="absolute w-[1px] h-[1px] bg-transparent animate-[animStar_50s_linear_infinite]"
+                    style={{ boxShadow: smallShadows }}
+                />
+                <div
+                    className="absolute w-[1px] h-[1px] bg-transparent animate-[animStar_50s_linear_infinite]"
+                    style={{ boxShadow: smallShadows, top: '2000px' }}
+                />
+
+                {/* Medium Stars */}
+                <div
+                    className="absolute w-[2px] h-[2px] bg-transparent animate-[animStar_100s_linear_infinite]"
+                    style={{ boxShadow: mediumShadows }}
+                />
+                <div
+                    className="absolute w-[2px] h-[2px] bg-transparent animate-[animStar_100s_linear_infinite]"
+                    style={{ boxShadow: mediumShadows, top: '2000px' }}
+                />
+
+                {/* Big Stars */}
+                <div
+                    className="absolute w-[3px] h-[3px] bg-transparent animate-[animStar_150s_linear_infinite]"
+                    style={{ boxShadow: bigShadows }}
+                />
+                <div
+                    className="absolute w-[3px] h-[3px] bg-transparent animate-[animStar_150s_linear_infinite]"
+                    style={{ boxShadow: bigShadows, top: '2000px' }}
+                />
+            </motion.div>
+        </div>
+    );
+};
+
+// ORANGE STARS LOGIC
+const generateBoxShadow = (n: number) => {
+    let value = "";
+    for (let i = 1; i <= n; i++) {
+        const isOrange = Math.random() < 0.033;
+        const color = isOrange ? "rgba(249, 115, 22, 0.8)" : "#FFF";
+        const x = Math.floor(Math.random() * 3000); // Increased spread for wider container
+        const y = Math.floor(Math.random() * 3000); // Increased spread
+        value += `${x}px ${y}px ${color}, `;
+    }
+    return value.slice(0, -2);
+};
 
 interface VideoCardProps {
     index: number;
     title: string;
     category: string;
+    videoUrl: string; // Add this back if you are using TypeScript strictly
 }
 
 const videos = [
     {
-        title: "SaaS Product Launch",
-        category: "Launch Video",
-        videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    },
-    {
-        title: "Brand Story Campaign",
-        category: "Advertisement",
-        videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    },
-    {
-        title: "App Promo Reel",
-        category: "Promotion",
-        videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    },
-    {
         title: "Feature Showcase",
-        category: "Product Demo",
-        videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+        category: "Feature Showcase",
+        videoUrl: "/SaaS 1.mp4",
+    },
+    {
+        title: "Product Launch",
+        category: "Launch Video",
+        videoUrl: "/SaaS 2.mp4",
+    },
+    {
+        title: "Product Promo",
+        category: "Motion Graphics",
+        videoUrl: "/SaaS 3.mp4",
+    },
+    {
+        title: "Product Explainer",
+        category: "Explainer Video",
+        videoUrl: "/SaaS 4.mp4",
     },
 ];
 
@@ -50,15 +147,23 @@ function VideoCard({ index, title, category }: VideoCardProps) {
                     }
                 });
             },
-            { root: null, rootMargin: "-20% 0px -20% 0px", threshold: 0 }
+            {
+                root: null,
+                // Tighter zone: video must be in center 30% of screen to be "active"
+                rootMargin: "-35% 0px -35% 0px",
+                // Trigger when 50% of the video is visible in the zone
+                threshold: 0.5
+            }
         );
 
-        if (cardRef.current) {
-            observer.observe(cardRef.current);
-        }
-
+        if (cardRef.current) observer.observe(cardRef.current);
         return () => observer.disconnect();
     }, []);
+
+    // Click to scroll video to center
+    const handleVideoClick = () => {
+        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
 
     return (
         <motion.div
@@ -67,22 +172,15 @@ function VideoCard({ index, title, category }: VideoCardProps) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
             viewport={{ once: true }}
-            className="relative flex items-center justify-center px-4 md:px-8 py-4"
+            className="relative flex items-center justify-center px-4 md:px-8 py-4 z-10 cursor-pointer"
+            onClick={handleVideoClick}
         >
-            {/* GLOW CARD WRAPPER (The Container) */}
             <div
-                className={`glow-card relative w-full max-w-6xl rounded-2xl overflow-hidden transition-all duration-700 ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-60"
+                className={`relative w-full max-w-6xl rounded-2xl transition-all duration-700 ${isVisible ? "scale-100 opacity-100" : "scale-90 opacity-60"
                     }`}
                 style={{ aspectRatio: "16 / 9" }}
             >
-                {/* THE GLOWING BALL (Animated Element) */}
-                <div className="glow" />
-
-                {/* INNER CONTENT (Video Container) */}
-                {/* IMPORTANT: inset-[1px] creates the gap for the border to shine */}
-                <div className="glow-card-inner absolute inset-[1px] rounded-2xl overflow-hidden bg-black z-10">
-
-                    {/* Video */}
+                <div className="glow-card-inner absolute inset-[2px] rounded-2xl overflow-hidden bg-black z-10">
                     <video
                         ref={videoRef}
                         src={videos[index].videoUrl}
@@ -91,11 +189,7 @@ function VideoCard({ index, title, category }: VideoCardProps) {
                         playsInline
                         className="absolute inset-0 w-full h-full object-cover z-0"
                     />
-
-                    {/* Overlay gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-transparent opacity-60 z-10" />
-
-                    {/* Text Content */}
                     <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 z-20">
                         <span className="text-accent-orange text-xs md:text-sm font-medium tracking-wider uppercase mb-1 md:mb-2 block">
                             {category}
@@ -104,8 +198,6 @@ function VideoCard({ index, title, category }: VideoCardProps) {
                             {title}
                         </h3>
                     </div>
-
-                    {/* Play indicator */}
                     <div
                         className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 transition-opacity duration-300 ${isVisible ? "opacity-0" : "opacity-100"
                             }`}
@@ -119,13 +211,29 @@ function VideoCard({ index, title, category }: VideoCardProps) {
                 </div>
             </div>
         </motion.div>
-    );
+    )
 }
 
 export default function Portfolio() {
+    const sectionRef = useRef<HTMLElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: sectionRef,
+        // Adjusted offset to start tracking slightly earlier for smoother entry
+        offset: ["start end", "end start"]
+    });
+
+    // 3. STRONG PARALLAX:
+    // Move from 0% to 50% down. This "drags" the background down as you scroll,
+    // creating a strong depth effect where stars feel far away.
+    const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+
     return (
-        <section id="work" className="py-12 md:py-20 bg-black relative overflow-hidden">
-            <div className="absolute inset-0 bg-black z-0" />
+        <section
+            id="work"
+            ref={sectionRef}
+            className="py-12 md:py-20 bg-black relative overflow-hidden"
+        >
+            <StarBackground y={backgroundY} />
 
             <div className="text-center mb-8 md:mb-16 px-4 relative z-10">
                 <motion.span
@@ -154,6 +262,7 @@ export default function Portfolio() {
                         index={index}
                         title={video.title}
                         category={video.category}
+                        videoUrl={video.videoUrl}
                     />
                 ))}
             </div>

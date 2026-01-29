@@ -8,19 +8,19 @@ const services = [
         icon: Rocket,
         title: "SaaS Launch Videos",
         description:
-            "Captivating launch videos that introduce your product to the world with cinematic flair and compelling narratives.",
+            "A high-energy launch video designed to instantly communicate product value and hook users within seconds.",
     },
     {
         icon: Megaphone,
-        title: "SaaS Advertisement",
+        title: "Product Walkthrough",
         description:
-            "High-converting promotional content designed to capture attention and drive user acquisition across all platforms.",
+            "Clean UI animations and motion graphics that show how your product works — fast and clearly.",
     },
     {
         icon: Video,
-        title: "Promotion Videos",
+        title: "Feature Showcase",
         description:
-            "Dynamic promotional reels that showcase your features, benefits, and unique value proposition with stunning visuals.",
+            "Short-form motion content highlighting key features, perfect for landing pages and ads.",
     },
 ];
 
@@ -49,28 +49,6 @@ const cardVariants = {
 export default function Services() {
     return (
         <section id="services" className="py-32 bg-dark-900 relative overflow-hidden section-bg">
-            {/* Animated background orbs using CSS */}
-            <div
-                className="absolute top-20 right-20 w-[300px] h-[300px] rounded-full animate-pulse opacity-50"
-                style={{
-                    background: "radial-gradient(circle, rgba(251, 191, 36, 0.08) 0%, transparent 60%)"
-                }}
-            />
-            <div
-                className="absolute bottom-20 left-10 w-[250px] h-[250px] rounded-full animate-pulse opacity-50"
-                style={{
-                    background: "radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, transparent 60%)",
-                    animationDelay: "1.5s"
-                }}
-            />
-            <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full animate-pulse opacity-30"
-                style={{
-                    background: "radial-gradient(circle, rgba(249, 115, 22, 0.06) 0%, transparent 70%)",
-                    animationDelay: "0.5s"
-                }}
-            />
-
             <div className="relative max-w-7xl mx-auto px-4 md:px-8 z-10">
                 {/* Section Header */}
                 <div className="text-center mb-20">
@@ -78,7 +56,7 @@ export default function Services() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-accent-orange text-sm font-medium tracking-[0.3em] uppercase mb-4 block"
+                        className="text-cinematic-label-orange text-sm mb-4 block"
                     >
                         What We Do
                     </motion.span>
@@ -87,7 +65,7 @@ export default function Services() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
+                        className="text-4xl md:text-5xl lg:text-6xl text-cinematic-heading mb-6"
                     >
                         Our <span className="text-gradient">Services</span>
                     </motion.h2>
